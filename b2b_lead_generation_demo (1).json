@@ -1,0 +1,206 @@
+{
+  "name": "B2B Lead Generation Pipeline - Portfolio Demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "5bf26902-d222-4fff-8fc0-e7c9fb045a5f",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "resource": "Actor tasks",
+        "actorTaskId": "YOUR_APIFY_ACTOR_TASK_ID",
+        "useCustomBody": true,
+        "customBody": "{\n    \"checkGoogleAdsActive\": false,\n    \"checkMetaAdsActive\": false,\n    \"enableLeadScoring\": false,\n    \"enrichDomain\": false,\n    \"enrichLegalEntity\": false,\n    \"enrichLinkedIn\": false,\n    \"enrichRegistry\": false,\n    \"hasWebsite\": false,\n    \"language\": \"es.\",\n    \"location\": \"Querétaro, Querétaro, México.\",\n    \"maxPlacesPerSearch\": 10,\n    \"outputAdditionalInfo\": false,\n    \"outputAddress\": true,\n    \"outputCategories\": true,\n    \"outputCategory\": true,\n    \"outputCid\": false,\n    \"outputCity\": true,\n    \"outputCountry\": true,\n    \"outputCurrentStatus\": false,\n    \"outputDescription\": true,\n    \"outputEmail\": true,\n    \"outputEmails\": true,\n    \"outputError\": true,\n    \"outputGoogleMapsUrl\": true,\n    \"outputHotel\": false,\n    \"outputImages\": false,\n    \"outputLatitude\": false,\n    \"outputLongitude\": false,\n    \"outputMainImage\": false,\n    \"outputMenu\": false,\n    \"outputOpeningHours\": true,\n    \"outputOrderOnline\": false,\n    \"outputOwner\": false,\n    \"outputPhone\": true,\n    \"outputPhones\": true,\n    \"outputPlaceId\": true,\n    \"outputPlusCode\": false,\n    \"outputPopularTimes\": false,\n    \"outputPostalCode\": true,\n    \"outputPriceRange\": false,\n    \"outputRating\": true,\n    \"outputReservations\": false,\n    \"outputReviewCount\": true,\n    \"outputSearchKeyword\": true,\n    \"outputServiceOptions\": false,\n    \"outputSocials\": true,\n    \"outputState\": true,\n    \"outputTimezone\": false,\n    \"outputTitle\": true,\n    \"outputWebHost\": false,\n    \"outputWebsite\": true,\n    \"outputWebsiteBusinessType\": false,\n    \"searchTerms\": [\n  \"planta manufacturera Parque Industrial Bernardo Quintana\",\n  \"empresa automotriz Parque Industrial Bernardo Quintana\",\n  \"industria metalmecánica Parque Industrial Bernardo Quintana\",\n  \"planta industrial carretera 57 El Marqués Querétaro\",\n  \"empresa exportadora carretera 57 El Marqués Querétaro\",\n  \"centro de distribución carretera 57 antes de Conín Querétaro\"\n],\n    \"validateEmail\": false\n}",
+        "timeout": 900,
+        "memory": 512,
+        "build": "stable",
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "6ae33681-646e-4af0-8bd8-fcb30820eb89",
+      "name": "Run task"
+    },
+    {
+      "parameters": {
+        "resource": "Datasets",
+        "datasetId": "={{ $json.defaultDatasetId  }}",
+        "limit": 60,
+        "options": {},
+        "authentication": "apifyOAuth2Api"
+      },
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "68a627a5-d067-47f5-947d-2bac41ac0586",
+      "name": "Get dataset items"
+    },
+    {
+      "parameters": {
+        "language": "pythonNative",
+        "pythonCode": "def texto(valor):\n    if valor is None:\n        return \"\"\n\n    if isinstance(valor, list):\n        for elemento in valor:\n            if elemento:\n                return str(elemento).strip()\n        return \"\"\n\n    return str(valor).strip()\n\n\ndef normalizar(valor):\n    valor = texto(valor).lower()\n\n    reemplazos = {\n        \"á\": \"a\",\n        \"é\": \"e\",\n        \"í\": \"i\",\n        \"ó\": \"o\",\n        \"ú\": \"u\",\n        \"ü\": \"u\",\n        \"ñ\": \"n\"\n    }\n\n    for original, reemplazo in reemplazos.items():\n        valor = valor.replace(original, reemplazo)\n\n    return valor\n\n\ndef limpiar_telefono(valor):\n    telefono = texto(valor)\n\n    if not telefono:\n        return \"\"\n\n    caracteres_permitidos = \"0123456789+\"\n\n    return \"\".join(\n        caracter\n        for caracter in telefono\n        if caracter in caracteres_permitidos\n    )\n\n\nterminos_industriales = [\n    \"manufactura\",\n    \"manufacturing\",\n    \"fabricante\",\n    \"fabrica\",\n    \"factory\",\n    \"automotriz\",\n    \"automotive\",\n    \"autopartes\",\n    \"metalurgica\",\n    \"metalmecanica\",\n    \"maquinaria\",\n    \"industrial\",\n    \"industria\",\n    \"inyeccion\",\n    \"plastico\",\n    \"electrodomestico\",\n    \"electronica\",\n    \"aeroespacial\",\n    \"exportadora\",\n    \"logistica\",\n    \"warehouse\",\n    \"almacen\",\n    \"centro de distribucion\",\n    \"planta\",\n    \"ensamble\",\n    \"quimica\",\n    \"farmaceutica\",\n    \"empaque\",\n    \"packaging\"\n]\n\n\nterminos_excluidos = [\n    \"restaurante\",\n    \"carniceria\",\n    \"tienda\",\n    \"abarrotes\",\n    \"hotel\",\n    \"escuela\",\n    \"hospital\",\n    \"consultorio\",\n    \"salon\",\n    \"spa\",\n    \"taller mecanico\",\n    \"refaccionaria\",\n    \"gasolinera\",\n    \"iglesia\",\n    \"oficina\",\n    \"coworking\",\n    \"plaza comercial\",\n    \"supermercado\",\n    \"carpinteria\",\n    \"madereria\",\n    \"tarimas\",\n    \"pallet\",\n    \"embalajes de madera\"\n]\n\n\nterminos_zona = [\n    \"bernardo quintana\",\n    \"carretera 57\",\n    \"mexico 57\",\n    \"el marques\",\n    \"conin\",\n    \"cumbres de conin\",\n    \"parque industrial bernardo quintana\"\n]\n\n\nresultados = []\nvistos = set()\n\n\nfor item in _items:\n    data = item.get(\"json\", {})\n\n    nombre = texto(\n        data.get(\"title\")\n        or data.get(\"name\")\n    )\n\n    telefono = limpiar_telefono(\n        data.get(\"phone\")\n        or data.get(\"phoneNumber\")\n    )\n\n    correo = texto(\n        data.get(\"email\")\n        or data.get(\"emails\")\n    )\n\n    direccion = texto(\n        data.get(\"address\")\n        or data.get(\"fullAddress\")\n        or data.get(\"street\")\n    )\n\n    categoria = texto(\n        data.get(\"category\")\n        or data.get(\"categoryName\")\n        or data.get(\"categories\")\n    )\n\n    busqueda = texto(\n        data.get(\"searchKeyword\")\n    )\n\n    contenido = normalizar(\n        nombre\n        + \" \"\n        + categoria\n        + \" \"\n        + direccion\n        + \" \"\n        + busqueda\n    )\n\n    es_industrial = any(\n        termino in contenido\n        for termino in terminos_industriales\n    )\n\n    esta_excluido = any(\n        termino in contenido\n        for termino in terminos_excluidos\n    )\n\n    esta_en_zona = any(\n        termino in contenido\n        for termino in terminos_zona\n    )\n\n    if not es_industrial:\n        continue\n\n    if esta_excluido:\n        continue\n\n    if not esta_en_zona:\n        continue\n\n    if not telefono and not correo:\n        continue\n\n    clave = normalizar(nombre)\n\n    if not clave:\n        continue\n\n    if clave in vistos:\n        continue\n\n    vistos.add(clave)\n\n    resultados.append({\n        \"json\": {\n            \"empresa\": nombre,\n            \"telefono\": telefono,\n            \"correo\": correo,\n            \"direccion\": direccion\n        }\n    })\n\n\nreturn resultados"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d7a56019-d686-4e46-b4ac-5b1e21ce8764",
+      "name": "Code in Python"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Leads"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [
+            "empresa"
+          ],
+          "schema": [
+            {
+              "id": "empresa",
+              "displayName": "empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "telefono",
+              "displayName": "telefono",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "correo",
+              "displayName": "correo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "direccion",
+              "displayName": "direccion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        896,
+        0
+      ],
+      "id": "443f97bd-d952-4677-a52d-5fb5c06b6694",
+      "name": "Append or update row in sheet"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        144,
+        144
+      ],
+      "id": "78f90b03-0f1c-4072-ab1a-628d4ff0b86e",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Run task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run task": {
+      "main": [
+        [
+          {
+            "node": "Get dataset items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get dataset items": {
+      "main": [
+        [
+          {
+            "node": "Code in Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  }
+}
