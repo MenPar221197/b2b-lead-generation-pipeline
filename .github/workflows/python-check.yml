@@ -1,0 +1,29 @@
+name: Python Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-cleaning-script:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run lead-cleaning script
+        run: python src/clean_leads.py
+
+      - name: Verify output file
+        run: test -s data/cleaned_leads.csv
