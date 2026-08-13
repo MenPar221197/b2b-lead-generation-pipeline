@@ -1,0 +1,6 @@
+business_name,category,phone,website,address,city,rating,reviews,status,notes
+Maderas Ejemplo Norte,Carpintería,+52 000 000 0001,https://example.com,Calle Ejemplo 101,Querétaro,4.6,28,New,Sample record
+Empaques Demo Industrial,Fabricación de embalajes,+52 000 000 0002,https://example.org,Avenida Demostración 220,Querétaro,4.3,17,Contacted,Sample record
+Muebles Ficticios del Centro,Fabricación de muebles,+52 000 000 0003,https://example.net,Boulevard Prueba 35,El Marqués,4.8,41,Qualified,Sample record
+Construcciones Modelo Bajío,Construcción,,https://example.com,Camino Simulado 80,Corregidora,4.1,12,Needs review,Missing phone
+Tarimas Prueba Querétaro,Fabricación de tarimas,+52 000 000 0005,,Parque Industrial Ejemplo 12,Querétaro,4.5,33,New,Missing website
